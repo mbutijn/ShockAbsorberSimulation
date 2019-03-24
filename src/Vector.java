@@ -1,5 +1,6 @@
 class Vector {
     double x, y, direction, abs;
+    int scale = Simulation.DISTANCE_SCALE;
 
     Vector(double x, double y){
         this.x = x;
@@ -7,7 +8,7 @@ class Vector {
     }
 
     int [] toPixelIndices(int yBound) {
-        int[] vector = {(int) Math.round(100 * x), (int) Math.round(yBound - 100 * y)};
+        int[] vector = {(int) Math.round(scale * x), (int) Math.round(yBound - scale * y)};
         return vector;
     }
 

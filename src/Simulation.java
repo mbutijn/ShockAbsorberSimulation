@@ -11,6 +11,7 @@ public class Simulation {
     InputSignal inputSignal;
     SpringDamper springDamper1, springDamper2;
     static Mass mass;
+    static final int DISTANCE_SCALE = 100; // 1 meter = 100 pixels
     static int xBound = 700; // cm
     static int yBound = 560; // cm
     private InputType[] inputTypes = {InputType.speed_bump, InputType.impulse, InputType.step, InputType.ramp, InputType.block, InputType.sinusoid,InputType.none};
@@ -46,7 +47,7 @@ public class Simulation {
 
         // Make the input points
         double nominalHeight = 1;
-        inputSignal = new InputSignal(700, 7, nominalHeight, 350, 590, inputType);
+        inputSignal = new InputSignal(xBound, xBound / DISTANCE_SCALE, nominalHeight, 350, 590, inputType);
 
         // Make the springs
         double equilibriumLength = 1.8;

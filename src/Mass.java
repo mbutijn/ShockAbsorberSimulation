@@ -70,9 +70,9 @@ public class Mass extends Drawable{
         double alpha2 = -Math.toRadians(90) - theta + force2.direction;
 
         double moment1 = -Math.cos(alpha1) * force1.abs * 0.5 * width;
-        double moment2 = Math.sin(alpha1) * force1.abs * 0.5 * height;
+        double moment2 = -Math.sin(alpha1) * force1.abs * 0.5 * height;
         double moment3 = Math.cos(alpha2) * force2.abs * 0.5 * width;
-        double moment4 = Math.sin(alpha2) * force2.abs * 0.5 * height;
+        double moment4 = -Math.sin(alpha2) * force2.abs * 0.5 * height;
 
         double stiffness = -5;
         double damping = -1;
