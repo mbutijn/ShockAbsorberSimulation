@@ -87,6 +87,12 @@ public class Mass extends Drawable{
     }
 
     void reset() {
+        try {
+            mass = Integer.parseInt(Simulation.massInput.getText());
+        } catch (Exception ex)
+        {
+            System.out.println("No Integer value entered");
+        }
         initializeVectors();
     }
 }

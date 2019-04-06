@@ -1,9 +1,14 @@
-class InputSignal extends Drawable{
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+class InputSignal extends Drawable{
+    static private InputType[] inputTypes = {InputType.speed_bump, InputType.impulse, InputType.step, InputType.ramp, InputType.block, InputType.sinusoid,InputType.none};
+    JComboBox<InputType> inputSelector = new JComboBox<>(inputTypes);
     private int index1, index2;
     private double spatialResolution, nominalHeight, length;
     Vector attachPoint1, attachPoint2;
-    InputType inputType;
+    private InputType inputType;
     private int count = 0;
 
     InputSignal(int numberOfElements, int length, double nominalHeight, int index1, int index2, InputType inputType){
@@ -22,6 +27,18 @@ class InputSignal extends Drawable{
 
         this.attachPoint1 = new Vector(points[index1].x, points[index1].y);
         this.attachPoint2 = new Vector(points[index2].x, points[index2].y);
+
+        inputSelector.setVisible(true);
+    }
+
+    void selectInputSignal() {
+        inputSelector.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inputType = (InputType) inputSelector.getSelectedItem();
+                initialize();
+            }
+        });
     }
 
     void update(){
@@ -30,7 +47,7 @@ class InputSignal extends Drawable{
             points[0].y = newHeight;
             points[1].y = newHeight;
         } else if (inputType == InputType.sinusoid){
-            double frequency = 1; // cycle/length
+            double frequency = 1; // cycle/frameWidth
             double amplitude = 0.5; // m
             double newHeight = nominalHeight + amplitude * Math.sin(2 * Math.PI * frequency * (count / (100 * length)));
             points[0].y = newHeight;
@@ -58,10 +75,10 @@ class InputSignal extends Drawable{
 
         // Make the signal
         int begin = 5; // index
-        int width = 250;
-        double height = 0.5;
+        int width = 310;
+        double height = 0.4;
         if (inputType == InputType.impulse){
-            points[begin].y = 2;
+            points[begin].y = 2.5;
         } else if (inputType == InputType.step) {
             for (int i = 0; i < begin; i++) {
                 points[i].y = nominalHeight + height;
@@ -73,7 +90,7 @@ class InputSignal extends Drawable{
         } else if(inputType == InputType.sinusoid) {
             count = 0;
         } else if (inputType == InputType.speed_bump){
-            int slopeWidth = 50;
+            int slopeWidth = 60;
             double slope = height/slopeWidth;
             for (int i = begin; i < width; i++){
                 if (i < begin + slopeWidth) {

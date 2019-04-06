@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ShockAbsorbers:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ShockAbsorbers_jar</output-path>
+    <root id="archive" name="ShockAbsorbers.jar">
+      <element id="module-output" name="ShockAbsorbers" />
+    </root>
+  </artifact>
+</component>

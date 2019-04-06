@@ -5,8 +5,8 @@ class SpringDamper extends Drawable{
     private Vector attachmentDown;
     private Vector vector, force;
     private Vector[] rotatedPoints;
-    private double[] widthPercentages  = {0, 0,   -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0,    0};
-    private double[] heightPercentages = {0, 0.15, 0.2, 0.3,  0.4, 0.5,  0.6, 0.7,  0.8, 0.85, 1.0};
+    private double[] widthPercentages  = {0, 0,    0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0,    0};
+    private double[] heightPercentages = {0, 0.15, 0.2,  0.3, 0.4,  0.5, 0.6,  0.7, 0.8, 0.85, 1.0};
     private boolean reset = false;
 
     SpringDamper(double equilibriumLength, double width, double stiffness, double damping, Vector attachmentDown, Vector initialAttachUp) {
@@ -19,25 +19,32 @@ class SpringDamper extends Drawable{
         this.numberOfElements = heightPercentages.length;
         this.rotatedPoints = new Vector[numberOfElements];
         this.points = new Vector[numberOfElements];
-
-        for (int i = 0; i < numberOfElements; i++){
-            this.points[i] = new Vector(attachmentDown.x + widthPercentages[i] * width, attachmentDown.y + heightPercentages[i] * equilibriumLength);
-            this.rotatedPoints[i] = new Vector(0, 0);
-        }
-
         force = new Vector(0,0);
         vector = new Vector(0,0);
         initialize();
+        updatePoints();
     }
 
     private void initialize() {
         currentLength = equilibriumLength;
         oldLength = equilibriumLength;
 
-        vector.x = initialAttachUp.x - points[0].x;
-        vector.y = initialAttachUp.y - points[0].y;
+        vector.x = initialAttachUp.x - attachmentDown.x;
+        vector.y = initialAttachUp.y - attachmentDown.y;
 
         vector.abs = vector.getAbs();
+        vector.direction = vector.getDirection();
+
+        //points[0] = attachmentDown;
+
+        for (int i = 0; i < numberOfElements; i++){
+            this.points[i] = new Vector(attachmentDown.x + widthPercentages[i] * width, attachmentDown.y + heightPercentages[i] * equilibriumLength);
+            this.rotatedPoints[i] = new Vector(heightPercentages[i] * equilibriumLength, widthPercentages[i] * width);
+
+            points[i].x = points[0].x + Math.cos(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
+            points[i].y = points[0].y + Math.sin(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
+        }
+
     }
 
     Vector updateForce(Vector attachmentUp, boolean mouseControl) {
@@ -83,15 +90,24 @@ class SpringDamper extends Drawable{
 
     void updatePoints() {
         for (int i = 1; i < numberOfElements; i++){
-            rotatedPoints[i].x = widthPercentages[i] * width;
-            rotatedPoints[i].y = heightPercentages[i] * currentLength;
+            rotatedPoints[i].x = heightPercentages[i] * currentLength;
 
-            points[i].x = points[0].x + Math.cos(rotatedPoints[i].getDirection() + vector.direction - Math.toRadians(90)) * rotatedPoints[i].getAbs();
-            points[i].y = points[0].y + Math.sin(rotatedPoints[i].getDirection() + vector.direction - Math.toRadians(90)) * rotatedPoints[i].getAbs();
+            points[i].x = points[0].x + Math.cos(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
+            points[i].y = points[0].y + Math.sin(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
         }
     }
 
     void reset() {
+        try {
+            stiffness = Double.parseDouble(Simulation.stiffnessInput.getText());
+        } catch (Exception ex) {
+            System.out.println("No numeric value entered for stiffness");
+        }
+        try {
+            damping = Double.parseDouble(Simulation.dampingInput.getText());
+        } catch (Exception ex) {
+            System.out.println("No numeric value entered for damping");
+        }
         initialize();
         reset = true;
     }

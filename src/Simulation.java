@@ -5,25 +5,28 @@ import java.awt.event.ActionListener;
 
 public class Simulation {
 
-    private Movement movement = new Movement();
     private Timer timer;
+    private InputType inputType = InputType.speed_bump;
+    static TextField massInput = new TextField("10",1);
+    static TextField stiffnessInput = new TextField("-10",1);
+    static TextField dampingInput = new TextField("-1",1);
+    JComboBox<InputType> a = new JComboBox<>();
+    static int xBound = 800; // cm
+    static int yBound = 500; // cm
+    static final int DISTANCE_SCALE = 100; // 1 meter = 100 pixels
     static double samplePeriod = 0.01; // s
+    static Mass mass;
+    static MouseControl mouseControl;
+    Movement movement = new Movement();
+    PauseButton pause;
     InputSignal inputSignal;
     SpringDamper springDamper1, springDamper2;
-    static Mass mass;
-    static final int DISTANCE_SCALE = 100; // 1 meter = 100 pixels
-    static int xBound = 700; // cm
-    static int yBound = 560; // cm
-    private InputType[] inputTypes = {InputType.speed_bump, InputType.impulse, InputType.step, InputType.ramp, InputType.block, InputType.sinusoid,InputType.none};
-    private JComboBox<InputType> inputSelector = new JComboBox<>(inputTypes);
-    private InputType inputType = InputType.speed_bump;
-    static MouseControl mouseControl;
 
     public static void main(String args[]) {
         new Simulation().makeUI();
     }
 
-    private void makeUI(){
+    private void makeUI() {
         JFrame frame = new JFrame("Shock absorber");
         frame.setVisible(true);
         frame.setSize(xBound, yBound);
@@ -32,53 +35,76 @@ public class Simulation {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 1));
-
-        inputSelector.setVisible(true);
-        inputSelector.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputSignal.inputType = (InputType) inputSelector.getSelectedItem();
-            }
-        });
-        panel.add(inputSelector);
-        panel.add(new Restart(this).makeButton());
-
         // Make the input points
-        double nominalHeight = 1;
-        inputSignal = new InputSignal(xBound, xBound / DISTANCE_SCALE, nominalHeight, 350, 590, inputType);
+        double nominalHeight = 1.5;
+        inputSignal = new InputSignal(xBound, xBound / DISTANCE_SCALE, nominalHeight, 380, 620, inputType);
 
         // Make the springs
-        double equilibriumLength = 1.8;
+        double equilibriumLength = 1.4;
         double width = 2.0;
         double initialX = (inputSignal.attachPoint1.x + inputSignal.attachPoint2.x) / 2;
         double x1 = initialX - inputSignal.attachPoint1.x - 0.5 * width;
-        double x2 = initialX - inputSignal.attachPoint2.x - 0.5 * width;
-        double heightAboveGround = Math.sqrt(Math.pow(equilibriumLength, 2) - Math.pow(x1, 2));
-        Vector attach1 = new Vector(x1, heightAboveGround);
-        Vector attach2 = new Vector(x2, heightAboveGround);
+        double x2 = inputSignal.attachPoint2.x - initialX - 0.5 * width;
+        double attachHeight = Math.sqrt(Math.pow(equilibriumLength, 2) - Math.pow(x1, 2)) + nominalHeight;
+        Vector attach1 = new Vector(inputSignal.attachPoint1.x + x1, attachHeight);
+        Vector attach2 = new Vector(inputSignal.attachPoint2.x - x2, attachHeight);
         springDamper1 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint1, attach1);
         springDamper2 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint2, attach2);
 
         // Make the mass
         double height = 1.0;
-        double initialY = nominalHeight + heightAboveGround - 0.5 * height;
-        mass = new Mass(1, 1, height, width, springDamper1.points[10], springDamper2.points[10], new Vector(initialX, initialY));
+        double initialY = attachHeight - 0.5 * height;
+        mass = new Mass(10, 1, height, width, springDamper1.points[10], springDamper2.points[10], new Vector(initialX, initialY));
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(6, 1));
+
+        inputSignal.selectInputSignal();
+
+        JPanel panel_double = new JPanel();
+        panel_double.setLayout(new GridLayout(3, 3));
+
+        addUIComponent(panel_double, massInput, "Mass: ", "kg");
+        addUIComponent(panel_double, stiffnessInput, "Stiffness: ", "N/m");
+        addUIComponent(panel_double, dampingInput, "Damping: ", "kg/s");
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.add(inputSignal.inputSelector);
+        panel.add(inputPanel);
+        panel.add(panel_double);
+        panel.setPreferredSize(new Dimension(160, 450));
 
         JPanel leftPanel = new JPanel();
-        frame.getContentPane().add(BorderLayout.WEST, leftPanel);
+        leftPanel.add(panel);
+        leftPanel.setPreferredSize(new Dimension(160, 450));
+        JPanel southPanel = new JPanel();
+        southPanel.add(new ResetButton(this).makeButton());
+        pause = new PauseButton(this);
+        southPanel.add(pause.makeButton());
+        JPanel northPanel = new JPanel();
+        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(southPanel, BorderLayout.SOUTH);
+        frame.getContentPane().add(leftPanel, BorderLayout.WEST);
 
-        leftPanel.add(panel, BorderLayout.CENTER);
         mouseControl = new MouseControl(frame);
-
         timer = new Timer((int) (1000 * samplePeriod), update);
-        startTimer();
+        timer.setRepeats(true);
     }
 
-    private void startTimer() {
-        timer.setRepeats(true);
+    private void addUIComponent(JPanel panel_double, TextField field, String property, String unit){
+        panel_double.add(new Label(property));
+        JPanel smallPanel = new JPanel();
+        smallPanel.add(field);
+        panel_double.add(smallPanel);
+        panel_double.add(new Label(unit));
+    }
+
+    void startTimer() {
         timer.start();
+    }
+
+    void stopTimer() {
+        timer.stop();
     }
 
     private ActionListener update = new ActionListener() {
@@ -103,10 +129,6 @@ public class Simulation {
             movement.repaint();
         }
     };
-
-    public Timer getTimer() {
-        return timer;
-    }
 
     class Movement extends JPanel {
         private static final long serialVersionUID = 1L;
