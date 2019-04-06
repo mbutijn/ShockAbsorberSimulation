@@ -1,12 +1,12 @@
 public class Mass extends Drawable{
-    private int mass;
+    private double mass;
     private double momentOfInertia;
     private double width, height;
     private final Vector initialPosition;
     private double theta, thetadot;
     private Vector acceleration, velocity, position;
 
-    Mass(int mass, double momentOfInertia, double height, double width, Vector leftUp, Vector rightUp, Vector initial){
+    Mass(double mass, double momentOfInertia, double height, double width, Vector leftUp, Vector rightUp, Vector initial){
         this.mass = mass;
         this.momentOfInertia = momentOfInertia;
         this.height = height;
@@ -74,7 +74,7 @@ public class Mass extends Drawable{
         double moment3 = Math.cos(alpha2) * force2.abs * 0.5 * width;
         double moment4 = -Math.sin(alpha2) * force2.abs * 0.5 * height;
 
-        double stiffness = -5;
+        double stiffness = -10;
         double damping = -1;
 
         double moment5 = stiffness * theta + damping * thetadot;
@@ -88,10 +88,14 @@ public class Mass extends Drawable{
 
     void reset() {
         try {
-            mass = Integer.parseInt(Simulation.massInput.getText());
-        } catch (Exception ex)
-        {
-            System.out.println("No Integer value entered");
+            mass = Double.parseDouble(Simulation.massInput.getText());
+        } catch (Exception ex) {
+            System.out.println("No numeric value entered for mass");
+        }
+        try {
+            momentOfInertia = Double.parseDouble(Simulation.inertiaInput.getText());
+        } catch (Exception ex) {
+            System.out.println("No numeric value entered for moment of inertia");
         }
         initializeVectors();
     }

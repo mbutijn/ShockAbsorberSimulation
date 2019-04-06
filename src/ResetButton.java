@@ -26,9 +26,6 @@ public class ResetButton {
             simulation.springDamper1.reset();
             simulation.springDamper2.reset();
 
-//            simulation.springDamper1.updatePoints();
-//            simulation.springDamper2.updatePoints();
-
             Simulation.mass.reset();
             Simulation.mass.updatePoints();
 
@@ -36,6 +33,7 @@ public class ResetButton {
             simulation.pause.pauseButton.setText("Start");
 
             Simulation.massInput.setEnabled(true);
+            Simulation.inertiaInput.setEnabled(true);
             Simulation.stiffnessInput.setEnabled(true);
             Simulation.dampingInput.setEnabled(true);
             simulation.inputSignal.inputSelector.setEnabled(true);

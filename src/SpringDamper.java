@@ -35,8 +35,6 @@ class SpringDamper extends Drawable{
         vector.abs = vector.getAbs();
         vector.direction = vector.getDirection();
 
-        //points[0] = attachmentDown;
-
         for (int i = 0; i < numberOfElements; i++){
             this.points[i] = new Vector(attachmentDown.x + widthPercentages[i] * width, attachmentDown.y + heightPercentages[i] * equilibriumLength);
             this.rotatedPoints[i] = new Vector(heightPercentages[i] * equilibriumLength, widthPercentages[i] * width);
