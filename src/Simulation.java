@@ -11,9 +11,11 @@ public class Simulation {
     static TextField stiffnessInput = new TextField("-10",1);
     static TextField dampingInput = new TextField("-1",1);
     static TextField inertiaInput = new TextField("1",1);
+    static TextField spring1Force = new TextField("0 N");
+    static TextField spring2Force = new TextField("0 N");
     JComboBox<InputType> a = new JComboBox<>();
-    static int xBound = 800; // cm
-    static int yBound = 500; // cm
+    static int xBound = 900; // cm
+    static int yBound = 600; // cm
     static final int DISTANCE_SCALE = 100; // 1 meter = 100 pixels
     static double samplePeriod = 0.01; // s
     static Mass mass;
@@ -51,8 +53,8 @@ public class Simulation {
         Vector attach2 = new Vector(inputSignal.attachPoint2.x - x2, attachHeight);
 
         // Make the springs
-        springDamper1 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint1, attach1);
-        springDamper2 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint2, attach2);
+        springDamper1 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint1, attach1, spring1Force);
+        springDamper2 = new SpringDamper(equilibriumLength, 0.5, -10, -1, inputSignal.attachPoint2, attach2, spring2Force);
 
         // Make the mass
         double height = 1.0;
@@ -82,6 +84,13 @@ public class Simulation {
         leftPanel.add(panel_double);
         leftPanel.setPreferredSize(new Dimension(160, 500));
 
+        JPanel rightPanel = new JPanel();
+        rightPanel.add(new Label("Spring 1:"));
+        rightPanel.add(spring1Force);
+        rightPanel.add(new Label("Spring 2:"));
+        rightPanel.add(spring2Force);
+        rightPanel.setPreferredSize(new Dimension(160, 500));
+
         JPanel southPanel = new JPanel();
         southPanel.add(new ResetButton(this).makeButton());
         pause = new PauseButton(this);
@@ -90,6 +99,7 @@ public class Simulation {
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
         frame.getContentPane().add(southPanel, BorderLayout.SOUTH);
         frame.getContentPane().add(leftPanel, BorderLayout.WEST);
+        frame.getContentPane().add(rightPanel, BorderLayout.EAST);
 
         mouseControl = new MouseControl(frame);
         timer = new Timer((int) (1000 * samplePeriod), update);

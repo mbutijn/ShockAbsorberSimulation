@@ -1,3 +1,5 @@
+import java.awt.*;
+
 class SpringDamper extends Drawable{
     private double equilibriumLength, width, stiffness, damping; // these properties do not change throughout simulation
     private double currentLength, oldLength; // these properties change throughout simulation
@@ -8,8 +10,9 @@ class SpringDamper extends Drawable{
     private double[] widthPercentages  = {0, 0,    0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0,    0};
     private double[] heightPercentages = {0, 0.15, 0.2,  0.3, 0.4,  0.5, 0.6,  0.7, 0.8, 0.85, 1.0};
     private boolean reset = false;
+    private TextField textField;
 
-    SpringDamper(double equilibriumLength, double width, double stiffness, double damping, Vector attachmentDown, Vector initialAttachUp) {
+    SpringDamper(double equilibriumLength, double width, double stiffness, double damping, Vector attachmentDown, Vector initialAttachUp, TextField textField) {
         this.equilibriumLength = equilibriumLength;
         this.width = width;
         this.stiffness = stiffness;
@@ -19,6 +22,7 @@ class SpringDamper extends Drawable{
         this.numberOfElements = heightPercentages.length;
         this.rotatedPoints = new Vector[numberOfElements];
         this.points = new Vector[numberOfElements];
+        this.textField = textField;
         force = new Vector(0,0);
         vector = new Vector(0,0);
         initialize();
@@ -42,7 +46,6 @@ class SpringDamper extends Drawable{
             points[i].x = points[0].x + Math.cos(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
             points[i].y = points[0].y + Math.sin(rotatedPoints[i].getDirection() + vector.direction) * rotatedPoints[i].getAbs();
         }
-
     }
 
     Vector updateForce(Vector attachmentUp, boolean mouseControl) {
@@ -50,6 +53,7 @@ class SpringDamper extends Drawable{
             force.x = 0;
             force.y = 0;
             force.abs = 0;
+            force.direction = 0;
             reset = false;
         } else {
             if (mouseControl){
@@ -83,6 +87,8 @@ class SpringDamper extends Drawable{
             force.abs = force_abs;
             force.direction = vector.direction;
         }
+
+        textField.setText(String.format("%.1f", force.abs) + " N");
         return force;
     }
 

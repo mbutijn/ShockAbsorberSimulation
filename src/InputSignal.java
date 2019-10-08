@@ -75,8 +75,8 @@ class InputSignal extends Drawable{
 
         // Make the signal
         int begin = 5; // index
-        int width = 310;
-        double height = 0.4;
+        int width = 250;
+        double height = 0.8;
         if (inputType == InputType.impulse){
             points[begin].y = 2.5;
         } else if (inputType == InputType.step) {
@@ -90,7 +90,7 @@ class InputSignal extends Drawable{
         } else if(inputType == InputType.sinusoid) {
             count = 0;
         } else if (inputType == InputType.speed_bump){
-            int slopeWidth = 60;
+            int slopeWidth = 100;
             double slope = height/slopeWidth;
             for (int i = begin; i < width; i++){
                 if (i < begin + slopeWidth) {
